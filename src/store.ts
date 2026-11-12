@@ -92,6 +92,12 @@ export class QuizStore implements IQuizStore {
       (p) => p.name.toLowerCase() === nameLower
     );
     if (existing) {
+      // If the participant is already in this session but disconnected, allow seamless reconnect/reclaim
+      if (!existing.connected) {
+        existing.connected = true;
+        log('PARTICIPANT_RECONNECTED_BY_NAME', { code, name: existing.name, id: existing.id });
+        return { participant: existing, token: existing.id };
+      }
       return { error: 'Name already taken in this quiz' };
     }
 
